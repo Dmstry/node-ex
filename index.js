@@ -1,61 +1,24 @@
-const os = require('os');
-const fs = require('fs');
+const { readFile } = require('fs/promises');
+const http = require('http');
 
-console.log('os.platform() :>> ', os.platform());
-// console.log('os.arch() :>> ', os.arch());
-// console.log('os.machine() :>> ', os.machine());
+const httpServer = http.createServer((request, response) => {
+  console.log('request.url :>> ', request.url);
+  console.log('request.method :>> ', request.method);
 
-// error-first contract in node.js native modules (Callback API)
-fs.readFile('./math.js', { encoding: 'utf-8' }, (err, data) => {
-  if (err) {
-    // console.log('err :>> ', err);
-  } else {
-    // console.log('data :>> ', data);
-  }
-});
-
-const fileText = fs.readFileSync('./math.js', { encoding: 'utf-8' });
-// console.log('fileText :>> ', fileText);
-
-// "прочитати" директорію і вивести в консоль результат
-fs.readdir('.', (err, files) => {
-  if (err) {
-    // console.log('err :>> ', err);
-  } else {
-    files
-      .filter((f) => /^.*\.js$/.test(f))
-      .forEach((f) =>
-        fs.readFile(f, { encoding: 'utf-8' }, (err, data) => {
-          if (err) {
-            // console.log('err :>> ', err);
-          } else {
-            // console.log('data :>> ', data);
-          }
-        })
-      );
-  }
-});
-
-// Переписати с синхронному вигляді
-try {
-  const files = fs.readdirSync('.');
-  console.log('Files in directory: ', files);
-  files
-    .filter((f) => /^.*\.js$/.test(f))
-    .forEach((f) => {
-      try {
-        const data = fs.readFileSync(f, { encoding: 'utf-8' });
-        console.log('Data from file: ', f);
-        // console.log(data);
-      } catch (err) {
-        // console.log('Error reading file :>> ', f, err);
-      }
+  readFile('./index.html', { encoding: 'utf-8' })
+    .then((data) => {
+      response.statusCode = 200;
+      response.setHeader('Content-Type', 'text/html');
+      response.end(data);
+    })
+    .catch((err) => {
+      response.statusCode = 500;
+      response.setHeader('Content-Type', 'text/html');
+      response.end('File was not read');
     });
-} catch (error) {
-  console.log('Error reading directory :>> ', error);
-}
+  // response.end('./index.html');
+});
 
-console.log('__filename :>> ', __filename);
-console.log('__dirname :>> ', __dirname);
-
-console.log('process :>> ', process.env);
+httpServer.listen(5000, 'localhost', () => {
+  console.log(`Server is listening port ${5000}, host "localhos"`);
+});
