@@ -1,23 +1,61 @@
-// default import
-// import sum from './math';
-// const sum = require("./math");
+const os = require('os');
+const fs = require('fs');
 
-// console.log("module :>> ", require("./math"));
+console.log('os.platform() :>> ', os.platform());
+// console.log('os.arch() :>> ', os.arch());
+// console.log('os.machine() :>> ', os.machine());
 
-// console.log("sum(3,4) :>> ", sum(3, 4));
+// error-first contract in node.js native modules (Callback API)
+fs.readFile('./math.js', { encoding: 'utf-8' }, (err, data) => {
+  if (err) {
+    // console.log('err :>> ', err);
+  } else {
+    // console.log('data :>> ', data);
+  }
+});
 
-// named import
-// import * as Math from './math';
-const Math = require("./math");
-// console.log('Math :>> ', Math);
+const fileText = fs.readFileSync('./math.js', { encoding: 'utf-8' });
+// console.log('fileText :>> ', fileText);
 
-console.log("Math.sum(1, 2) :>> ", Math.sum(1, 2));
-console.log("Math.mult(2,3) :>> ", Math.mult(2, 3));
+// "прочитати" директорію і вивести в консоль результат
+fs.readdir('.', (err, files) => {
+  if (err) {
+    // console.log('err :>> ', err);
+  } else {
+    files
+      .filter((f) => /^.*\.js$/.test(f))
+      .forEach((f) =>
+        fs.readFile(f, { encoding: 'utf-8' }, (err, data) => {
+          if (err) {
+            // console.log('err :>> ', err);
+          } else {
+            // console.log('data :>> ', data);
+          }
+        })
+      );
+  }
+});
 
-// import { sum } from './math';
-const { sum, mult, some } = require("./math");
+// Переписати с синхронному вигляді
+try {
+  const files = fs.readdirSync('.');
+  console.log('Files in directory: ', files);
+  files
+    .filter((f) => /^.*\.js$/.test(f))
+    .forEach((f) => {
+      try {
+        const data = fs.readFileSync(f, { encoding: 'utf-8' });
+        console.log('Data from file: ', f);
+        // console.log(data);
+      } catch (err) {
+        // console.log('Error reading file :>> ', f, err);
+      }
+    });
+} catch (error) {
+  console.log('Error reading directory :>> ', error);
+}
 
-console.log("sum(2,3) :>> ", sum(2, 3));
-console.log("mult(3,3) :>> ", mult(3, 3));
+console.log('__filename :>> ', __filename);
+console.log('__dirname :>> ', __dirname);
 
-console.log("Math :>> ", Math);
+console.log('process :>> ', process.env);
